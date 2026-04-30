@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INDUMAG - Inventario</title>
+<style>
+:root{--bg:#1E1F22;--card:#2A2C31;--sub:#313338;--accent:#48B0BD;--txt:#E0E0E0;--txt2:#A0A0A0;--border:#3A3C42;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);padding-bottom:60px;}
+.header{background:#25272C;padding:15px;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--accent);text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.5);}
+.header h2{color:var(--accent);letter-spacing:3px;font-size:20px;margin-bottom:10px;}
+#searchBar{width:90%;max-width:600px;padding:11px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--txt);font-size:15px;outline:none;transition:.3s;}
+#searchBar:focus{border-color:var(--accent);}
+.container{max-width:900px;margin:20px auto;padding:0 12px;}
+
+/* CATEGORIA PRINCIPAL */
+.cat-group{background:var(--card);margin-bottom:10px;border-radius:8px;border:1px solid var(--border);overflow:hidden;}
+.cat-header{padding:15px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:15px;border-left:4px solid var(--accent);transition:.2s;user-select:none;}
+.cat-header:hover{background:var(--sub);}
+.cat-header .arrow{transition:.3s;color:var(--accent);font-size:13px;}
+.cat-header.open .arrow{transform:rotate(90deg);}
+.cat-count{background:var(--accent);color:#000;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;}
+
+/* SUBCATEGORIA */
+.sub-list{display:none;background:var(--sub);padding:6px 0;}
+.sub-group{margin:4px 10px;border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+.sub-header{padding:11px 15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600;color:var(--accent);background:#2E3035;transition:.2s;user-select:none;}
+.sub-header:hover{background:#35373D;}
+.sub-header .arrow{transition:.3s;font-size:12px;}
+.sub-header.open .arrow{transform:rotate(90deg);}
+.sub-count{background:#2A2C31;color:var(--txt2);padding:2px 8px;border-radius:10px;font-size:10px;}
+
+/* PRODUCTOS */
+.prod-list{display:none;background:#25272C;}
+.prod-item{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;}
+.prod-item:last-child{border-bottom:none;}
+.prod-name{color:var(--txt);flex:1;padding-right:10px;}
+.price{color:#4EC97A;font-weight:700;font-family:'Courier New',monospace;font-size:13px;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h2>⚙ INDUMAG DATA-DESIGN</h2>
+  <input type="text" id="searchBar" placeholder="🔍 Buscar producto..." onkeyup="runFilter()">
+</div>
+<div class="container" id="catalog"></div>
+<script>
+const DATA = {
+  "⚙️ EQUIPOS":{
+    "Equipos de Soldadura":[
+      ["EQUIPO INVERSOR AX 120",520000],
+      ["EQUIPO MEGA FORCE 185ID LINCOLN",1350000],
+      ["EQUIPO MEGA FORCE 330HD",4500000],
+      ["EQUIPO MEGAFORCE 130E LINCOLN",760000],
+      ["EQUIPO MEGAFORCE 175 LINCOLN",1000000],
+      ["EQUIPO MEGAFORCE 175E LINCOLN",1165000],
+      ["EQUIPO MEGAFORCE 250ID",1454000],
+      ["EQUIPO MEGAFORCE 257 MP",8000000],
+      ["EQUIPO ELITE ARC 160S",1000000]
+    ],
+    "Equipos de Oxicorte":[
+      ["EQUIPO DE OXICORTE",950000],
+      ["TRONZADORA DEWALT",950000]
+    ],
+    "Pulidoras y Lijadoras Industriales":[
+      ["PULIDORA BLACK DECKER 650W",154000],
+      ["PULIDORA LIJADORA STANLEY 600W",340000],
+      ["PULIDORA TOTAL 750W",170000],
+      ["PULIDURA TRUPER 800W/5.9AMP",310000],
+      ["POLICHADORA BLACK AND DECKER 120W",180000],
+      ["LIJADORA ORBITAL SIEFKEN KM405",270000],
+      ["SIERRA CALADORA HM080 SIEFKEN",430000],
+      ["PISTOLA DE CALOR",149000]
+    ]
+  },
+  "🔧 HERRAMIENTAS MANUALES":{
+    "Taladros y Accesorios":[
+      ["TALADRO PERCUTOR SIEFKEN 750W",330000],
+      ["TALADRO ELITE 800W",250000],
+      ["TALADRO TOTAL 280W",130000],
+      ["TALADRO TOTAL 680W",143000],
+      ["COMPLEMENTO TALADRO 11 PCS",34000],
+      ["COMPLEMENTO TALADRO 8 PCS",28000],
+      ["PUNTA TALADRO ESTRIA/PALA UDUKE",350000],
+      ["PUNTA TALADRO SOLO ESTRIA UDUKE",350000],
+      ["PUNTAS DOBLE ESTRIA PARA TALADRO",350000],
+      ["PUNTAS PARA TALADRO ESTRIA BRICKER",300000],
+      ["PUNTAS TALADRO DIESEL X UNID",440000],
+      ["JUEGO GRATAS TALADRO 3PC",1000000]
+    ],
+    "Llaves y Copas":[
+      ["COPA 1/2 8MM",350000],
+      ["COPA 1/2 9MM",350000],
+      ["COPA 1/2 10MM",350000],
+      ["COPA 1/2 11MM",350000],
+      ["COPA 1/2 11MM CON EXTENSION",650000],
+      ["COPA 1/2 14MM",350000],
+      ["COPA 1/4 14MM",350000],
+      ["COPA 1/4 15MM",350000],
+      ["COPA EXTENSION T 8MM",880000],
+      ["COPA EXTENSION T 10MM",880000],
+      ["COPA EXTENSION T 11MM",880000],
+      ["COPA EXTENSION T 12MM",880000],
+      ["COPA EXTENSION T 13MM",880000],
+      ["JUEGO COPAS CON RACHE 1/2 12PCS",60000],
+      ["JUEGO DE COPAS 24 PIEZAS",33000],
+      ["JUEGO DE COPAS X10 3/8\"",34000],
+      ["JUEGO RACHE 40PC HARBOR",25000],
+      ["DADO ADAPTADOR",59500],
+      ["JUEGO ALLEN RANGER X8 U",950000]
+    ],
+    "Espátulas y Brochas":[
+      ["ESPATULA BLANCA",150000],
+      ["ESPATULA CARIBE 3",150000],
+      ["ESPATULA CARIBE 4",200000],
+      ["ESPATULA DE ACERO 1.5P",450000],
+      ["ESPATULA DE ACERO 2.5P",500000],
+      ["ESPATULA DE ACERO 6P",800000],
+      ["ESPATULA METALICA UDUKE",700000],
+      ["ESPATULA PEQUENA",60000],
+      ["ESPATULA SIN MANGO",60000],
+      ["BROCHA 2P UDUKE",300000],
+      ["BROCHA 4\" UDUKE",530000],
+      ["BROCHA 5PUL UDUKE",11000]
+    ],
+    "Medición y Nivel":[
+      ["CALIBRADOR PIE DE REY PLASTICO",440000],
+      ["CALIBRADOR PIE DE REY UDUKE",16500],
+      ["METRO 5MTS",1000000],
+      ["METRO TRANSPARENTE 3M",700000],
+      ["METRO X10MTS UDUKE",15500],
+      ["NIVEL ALUMINIO 14\" UDUKE",22000],
+      ["REGLA 90 GRADOS UDUKE",12000],
+      ["MULTIMETRO DIGITAL TOTAL",49000],
+      ["PROBADOR DE CORRIENTE",220000],
+      ["PROBADOR DIGITAL DE VOLTAJE",600000],
+      ["PONCHADURA ETHERNET TOTAL",39000]
+    ],
+    "Corte y Segueta":[
+      ["HOJA SEGUETA NICHELSON",660000],
+      ["HOJA SEGUETA UDUKE",380000],
+      ["SEGUETA/MARCO",19000],
+      ["CORTAFRIO 7\" TOTAL",18500],
+      ["CORTA TUBO GRANDE",23200],
+      ["CORTA TUBO PEQUE",820000],
+      ["TIJERA GRANDE UDUKE",600000],
+      ["TIJERA MULTIPROPOSITO",21000],
+      ["BISTURI METALICO UDUKE",700000],
+      ["BISTURI PASTA",550000],
+      ["CUCHILLA PARA BISTURI",440000],
+      ["CUCHILLO VENEZIA 6\"",700000],
+      ["CUCHILLO VENEZIA 7\"",750000],
+      ["CUCHILLO VENEZIA 8\"",800000]
+    ],
+    "Herramientas Varias":[
+      ["REMACHADORA TOTAL",30000],
+      ["JUEGO DE MACHUELOS 7 PCS",30000],
+      ["JUEGO DE TARRAJA 7 PCS",30000],
+      ["LLANA LISA MANGO PLASTICO",950000],
+      ["LLANA PAR REBOQUE",11400],
+      ["MINI RODILLO 3P",450000],
+      ["MINI RODILLO SOFI 2P",440000],
+      ["MINI RODILLO SOFI DE 4P",500000],
+      ["PALA GRANDE SIN PALO",39000],
+      ["PALA MEDIANA SIN PALO",35000],
+      ["PALA PEQUENA SIN PALO",33000],
+      ["PISTOLA RIEGO UDUKE 8 FUNCIONES",14000],
+      ["PISTOLA RIEGO TOTAL 9 FUNCIONES",24000],
+      ["PISTOLA QUALITY PARA PINTAR",60000],
+      ["PISTOLA SELLADORA",1000000],
+      ["PISTOLA SILICONA GRANDE",15000]
+    ]
+  },
+  "🔩 CONSUMIBLES":{
+    "Consumibles MIG":[
+      ["ALAMBRE MIG 0.8 LINCOLN X15KG",135000],
+      ["ALAMBRE MIG 0.8 X15KG WELD ALLOY",1690500],
+      ["ALAMBRE MIG 0.9 X15KG WELD ALLOY",1224000],
+      ["ALAMBRE MIG FLUX CORED 0.9 X1KG PREMIUM",55000],
+      ["ALAMBRE MIG FLUX CORED 0.9 X5KG PREMIUM",180000],
+      ["ALAMBRE MIG INOX 308L 0.9 X1KG",44000],
+      ["ALAMBRE ALUMINIO X1KG 1799",52000],
+      ["BOQUILLA 220011",29000],
+      ["BOQUILLA 220671",22000],
+      ["BOQUILLA 220975",50000],
+      ["BOQUILLA CERAMICA 1/2 N8",880000],
+      ["BOQUILLA CERAMICA 7/16 P N4",880000],
+      ["BOQUILLA CERAMICA 7/16 P N7",880000],
+      ["BOQUILLA CERAMICA CON FILTRO N5",800000],
+      ["BOQUILLA CERAMICA CON FILTRO N6",800000],
+      ["BOQUILLA CERAMICA CON FILTRO N7",800000],
+      ["DIFUSOR JUNIOR 169-716",12500],
+      ["DIFUSOR LARGE GAS 3/32",27500],
+      ["DIFUSOR LARGE GAS 1/8-3.2",25000],
+      ["DIFUSOR TREGASKISS 404-18",26000],
+      ["DIFUSOR TWECO 55H",18000],
+      ["DIFUSOR ADAPTADOR 169-729 TIPO MILLER",26000],
+      ["PUNTA CONTACTO KP1125 LINCOLN 0.6",300000],
+      ["PUNTA CONTACTO M8 LINCOLN 1.2",600000],
+      ["PUNTA CONTACTO TREGASKISS 403-03-45",800000],
+      ["PUNTA CONTACTO TREGASKISS 403-12-35",800000],
+      ["PUNTA CONTACTO TREGASKISS 403-20-35",800000],
+      ["PUNTA CONTACTO TREGASKISS 603-20-2.4MM",800000],
+      ["PUNTA CONTACTO TREGASKISS 603-20-35",900000],
+      ["PUNTA CONTACTO TREGASKISS 603-20-52",900000],
+      ["PUNTA CONTACTO TREGASKISS R403-20-35",800000],
+      ["PUNTA CONTACTO TWECO 1.4",600000],
+      ["PUNTA CONTACTO TWECO 15H-564",750000],
+      ["PUNTA CONTACTO TWECO 16S-52",600000],
+      ["PUNTA CONTACTO 16S-116 TWECO",660000],
+      ["ANTORCHA SPOOL 25AKML5M",1500000],
+      ["ANPHENOL ANTORCHA",55000],
+      ["GATILLO ANTORCHA",31000],
+      ["PORTA BOQUILLA 3/32",650000],
+      ["CONECTOR MACHO GRANDE PARA MILLER",65000],
+      ["CONECTOR MACHO 500A PARA CABLE",33000],
+      ["CREMA TOBERA 250 GR",24000],
+      ["CREMA TOBERA 500 GR",41800],
+      ["LIMPIA BOQUILLA",800000]
+    ],
+    "Consumibles Electrodo":[
+      ["SOLDADURA 6010 1/8 INDURA",19800],
+      ["SOLDADURA 6011 1/8 PREMIUM",19800],
+      ["SOLDADURA 6011 3/32 PREMIUM",19800],
+      ["SOLDADURA 6011 5/32 PREMIUM",19800],
+      ["SOLDADURA 6013 1/8 PREMIUM",19800],
+      ["SOLDADURA 6013 3/32 PREMIUM",19800],
+      ["SOLDADURA 7014 1/8 PREMIUM",22000],
+      ["SOLDADURA 7014 3/32 PREMIUM",22000],
+      ["SOLDADURA 7018 1/8 INDURA",19800],
+      ["SOLDADURA 7018 1/8 OERLIKON",19800],
+      ["SOLDADURA 7018 1/8 PREMIUM",150881],
+      ["SOLDADURA 7018 3/32 PREMIUM",20000],
+      ["SOLDADURA 308 1/8",66000],
+      ["SOLDADURA 308 1/8 INDURA",66000],
+      ["SOLDADURA 308 3/32",66000],
+      ["PORTAELECTRODO 300AMP",35200]
+    ],
+    "Consumibles Plasma":[
+      ["BOQUILLA 220930 65 PMX",29000],
+      ["BOQUILLA 220931",29000],
+      ["BOQUILLA 220941 65 PMX",29000],
+      ["BOQUILLA 9-8210",24000],
+      ["BOQUILLA 9-8233",24000],
+      ["BOQUILLA CERAMICA PT80 CHINO",12000],
+      ["ELECTRODO 220037",39600],
+      ["ELECTRODO 220669",39600],
+      ["ELECTRODO 420132 HYP",39600],
+      ["ELECTRODO 9-8215",28000],
+      ["ELECTRODO 9-8232",24000],
+      ["ESCUDO 220673",57000],
+      ["ESCUDO 220674",57000],
+      ["ESCUDO 220817",57000],
+      ["ESCUDO 220992 POWERMAX",57000],
+      ["ESCUDO 420000",75000],
+      ["DISTRIBUIDOR AIRE 220997",78000],
+      ["DISTRIBUIDOR AIRE 220994 30-125AMP",78000],
+      ["DISTRIBUIDOR DE AIRE 220670",78000],
+      ["CAPUCHON 220483",85000],
+      ["CAPUCHON 220719",110000],
+      ["CAPUCHON 290719",160000],
+      ["COPA DE PROTECCION 9-8218",160000]
+    ],
+    "Consumibles Oxicorte":[
+      ["BOQUILLA N0 GPN",34000],
+      ["BOQUILLA N0 ACETILENO",34000],
+      ["BOQUILLA N0 ACETILENO 164",44000],
+      ["BOQUILLA N1 ACETILENO 164",34000],
+      ["BOQUILLA N1 GPN",34000],
+      ["BOQUILLA N1 GPN 229",44000],
+      ["BOQUILLA N2 GPN",34000],
+      ["BOQUILLA N2 GPN 229",44000],
+      ["BOQUILLA N2 ACETILENO",34000],
+      ["BOQUILLA N3 GPN",34000],
+      ["BOQUILLA N3 ACETILENO 1-101",34000],
+      ["BOQUILLA N3 PROPANO 229",44000],
+      ["BOQUILLA N5 GPN",34000],
+      ["BOQUILLA N6 GPN",34000],
+      ["BOQUILLAS N0 GPN 229",44000],
+      ["ANTORCHA DE SOLDAR MAP",78000],
+      ["MAP GAS",29000],
+      ["ARRESTADOR DE LLAMA PARA ANTORCHA",230000],
+      ["ARRESTADOR DE LLAMA PARA REGULADOR",140000],
+      ["REGULADOR ARGON AIRMETAN",180000],
+      ["REGULADOR ARGON FLUJOMETRO G-600",340000],
+      ["REGULADOR CO2 FLUJOMETRO G-600",340000],
+      ["REGULADOR CO2 INDUSTRIAL G-300",210000],
+      ["REGULADOR DE CO2",180000],
+      ["REGULADOR OXIGENO INDUSTRIAL G-300",210000],
+      ["REGULADOR BOC OXIGENO",380000],
+      ["REGULADOR BOC ARGON",380000],
+      ["REGULADOR BOC ACETILENO",380000],
+      ["NIPLE MANGUERA ARGON CO2",15000],
+      ["NIPLE REGULADOR DE OXIGENO",15000],
+      ["NIPLE TUERCA CON ANILLO",300000],
+      ["NIPLES CO2 BASTAGO",15500],
+      ["NIPLES MANGUERA 1/4 OXICORTE",400000],
+      ["TUERCA CO2 REGULADOR HEMBRA",14000],
+      ["TUERCA DERECHA ARGON MEZCLA",17000],
+      ["TUERCA INVERSA COMBUSTIBLE",16000],
+      ["TUERCA MANGUERA 1/4 RD OXIGENO",400000],
+      ["TUERCA MANGUERA 1/4 RI ACETILENO",400000],
+      ["UNION ARGON CO2",40000],
+      ["UNION OXICORTE MANGUERA COMBUSTIBLE",800000],
+      ["ROSCA NIPLE PARA ARGON 1/4",18000],
+      ["MANGUERA OXYCORTE DOBLE",13500],
+      ["KIT REPUESTO FLUJOMETRO",24000],
+      ["PORTATIZA OXYWELD",700000],
+      ["MANOMETRO 0-200 PSI X 1/4 OXYWELD",19000],
+      ["MANOMETRO 0-30PSI X 21/2 OXYWELD",27800],
+      ["MANOMETROS ROSCA 1/8\"",20000],
+      ["PORTA TUGSTENO 3/32",400000],
+      ["PORTATUGSTENO 1/16",400000],
+      ["PORTATUGSTENO 1/8",400000],
+      ["PORTATUGSTENO 5/64",400000],
+      ["TUGSTENO GRIS 3/32",13000],
+      ["TUGSTENO MORADO 3/32",13000],
+      ["TUGSTENO ROJO 1/16",13000],
+      ["TUGSTENO ROJO 1/8",13000],
+      ["TUGSTENO ROJO 3/32",13000],
+      ["TUGSTENO VERDE 1/16",13000],
+      ["TUGSTENO VERDE 3/32",13000]
+    ],
+    "Consumibles Generales":[
+      ["ACEITE 3 EN 1 30ML",250000],
+      ["ACEITE ACAPELA",10500],
+      ["ACEITE LUBRICANTE 30CM3",300000],
+      ["ACEITE LUBRICANTE 70CM3",450000],
+      ["ACEITE VERDE",13000],
+      ["ACEITERA 250ML",1000000],
+      ["ACEITERA 300ML",15000],
+      ["ACEITERA 500ML",18000],
+      ["LUBRICANTE AEROSOL",12000],
+      ["LIJA 80",200000],
+      ["LIJA 150",200000],
+      ["LIJA 180 ABRACOL",250000],
+      ["LIJA 220",200000],
+      ["LIJA 500 ABRACOL",200000],
+      ["LIJA 1000 ABRACOL",400000],
+      ["LIJA ROJA ABRACOL 180",250000],
+      ["LIJA ROJA ABRACOL 320",250000],
+      ["GRATA CIRCULAR MOTORTOOL INDIVIDUAL",450000],
+      ["GRATA COPA 3\" DUKE ENERGY",1000000],
+      ["GRATA COPA ENTORCHADA 3\"",1000000],
+      ["GRATA COPA ENTORCHADA 5\"",26500],
+      ["JUEGO DE PIEDRA MOTORTOOL",850000],
+      ["JUEGO PIEDRA MOTORTOOL PEQUE",500000],
+      ["AEROSOL AMARILLO UDUKE",800000],
+      ["AEROSOL AZUL CIELO 15",800000],
+      ["AEROSOL BLANCO BRILLANTE",800000],
+      ["AEROSOL CAFE OSCURO 29",80000],
+      ["AEROSOL CROMADO BRILLANTE",12000],
+      ["AEROSOL HARBOR ALUMINIO",800000],
+      ["AEROSOL HARBOR BLANCO CREMA",800000],
+      ["AEROSOL HARBOR BLANCO MATE",800000],
+      ["AEROSOL NARANJA AMARILLA",800000],
+      ["AEROSOL NEGRO BRILLANTE",800000],
+      ["AEROSOL NEGRO BRILLANTE ALTA TEMPERATURA",20400],
+      ["AEROSOL NEGRO MATE",880000],
+      ["AEROSOL ROJO SUZUKI 131",800000],
+      ["AEROSOL TRANSPARENTE BRILLANTE",800000],
+      ["AEROSOL U DUKE ALUMINIO",800000],
+      ["AEROSOL VERDE OSCURO 13",800000],
+      ["PEGANTE SOLUCION",250000],
+      ["PEGANTE SUPER PEGA",100000],
+      ["PEGANTE SUPER PEGA ASTRO",100000],
+      ["LOCTITE SUPER BONDER",500000],
+      ["SILICONA LOCTITE GRIS",25000],
+      ["SILICONA NEGRA ALTA TEMPERATURA",600000],
+      ["SILICONA PARA PISTOLA",60000],
+      ["SILICONA ULTRARAPIDA AEROSOL",11800],
+      ["SILICONA TRANSPARENTE ACETICA",650000],
+      ["SINTESOLDA 24HORAS",14000],
+      ["SINTE SOLDA MASILLA",400000],
+      ["SINTESOLDA MASILLA GRANDE",1000000],
+      ["SINTESOLDA MASILLA PEQUE",500000],
+      ["SINTESOLDA TRANSPARENTE",11000],
+      ["ADHESIVO EPOXICO MULTIUSOS",760000],
+      ["ESTANO 10G UDUKE",550000],
+      ["ESTANO X 5GR",250000],
+      ["PASTA PARA SOLDAR 8G",350000],
+      ["CREMA DE PASTA DE ESTANO 8GR",350000],
+      ["FUNDENTE DE ALUMINIO 1/2",232000],
+      ["CINTA NEGRA UDUKE",330000],
+      ["CINTA NEGRA PEQUENA 3M",630000],
+      ["CINTA TEFLON",100000],
+      ["CINTA TEFLON 0.1 X 19 X 10MTS",120000],
+      ["CINTA TRANSPARENTE 18MTS",300000],
+      ["CINTA TRANSPARENTE 36MTS",490000],
+      ["CINTA TRANSPARENTE ABRACOL 48X100MTS",630000],
+      ["CINTAPAPEL 21MTS UDUKE",330000],
+      ["CINTAPAPEL 39MTS UDUKE",500000],
+      ["CINTA DOBLE FAZ 1.5MTS VHARBOR",200000],
+      ["KIT CINTA AISLANTE CON AUTOFUNDENTE",44000],
+      ["AMARRA 10CM NEGRA",250000],
+      ["AMARRA 15CM NEGRA",350000],
+      ["AMARRA 20CM NEGRA",440000],
+      ["AMARRAS PQ 10CM X2.5 BL",250000],
+      ["AMARRAS PQ 15CM X2.5 BL",380000],
+      ["AMARRAS PQ 15CM X2.5 NE",370000],
+      ["AMARRAS PQ 20CM X4.8 BL",440000],
+      ["AMARRAS PQ 25CM NEGRO",600000],
+      ["AMARRAS PQ 25CM X4.8 BL",550000],
+      ["AMARRAS PQ 35CM X4.8 BL",10500],
+      ["AMARRAS PQ 35CM X4.8 NE",10500]
+    ]
+  },
+  "🔌 ELECTRICO":{
+    "Tomas e Interruptores":[
+      ["TOMA ELECTRICO X2 UDUKE",300000],
+      ["TOMA ELECTRICO X2 UDUKE SIN CORAZA",200000],
+      ["TOMA CORRIENTE HEMBRA MEDIANO",680000],
+      ["TOMA CORRIENTE HEMBRA MEDIANO CON POLO A TIERRA",800000],
+      ["TOMA SWICHE 125V 15A",600000],
+      ["TOMA TRIFASICO PARA INCRUSTAR",26000],
+      ["TOMA MULTIPLE X6 1MT",1000000],
+      ["MULTITOMA X3 CAUCHO BLANCO",300000],
+      ["MULTITOMA X3 CAUCHO NEGRO",400000],
+      ["INTERRUPTOR 120V/3A-220V/1.5A HORNO",500000],
+      ["INTERRUPTOR 16A PULSADOR MOMENTANEO",1000000],
+      ["INTERRUPTOR DE SOLDADOR",28000],
+      ["SWITCH DE PALANCA",330000],
+      ["SWITCH DOBLE 120/250V-6A",650000],
+      ["SWITCH TRIPLE",400000],
+      ["SWITCH DE PASO BLANCO",330000],
+      ["SWICHE X1 BLANCO UDUKE",400000],
+      ["BREAKERMATIC",32000],
+      ["CONTACTOR 50 AMP DUKE HT60039",11000],
+      ["CONTACTOR B447-19 2P 16A 415V",11300],
+      ["TERMICO",770000]
+    ],
+    "Cables y Conectores":[
+      ["CABLE MULTIFILAMENTO N.2",23000],
+      ["EXTENSION ELECTRICA 4.5MTS",800000],
+      ["EXTENSION ELECTRICA 5MTS",20000],
+      ["EXTENSION ELECTRICA 6.10MTS",1000000],
+      ["EXTENSION ELECTRICA 8M",28000],
+      ["CLAVIJA CON POLO TIERRA",700000],
+      ["CLAVIJA MEDIANO NEGRO CAUCHO",500000],
+      ["CLAVIJA PEQ NEGRO CAUCHO",330000],
+      ["CLAVIJA TRIFASICA 50A",19300],
+      ["CONVERTIDOR CLAVIJA POLO UNDS",300000],
+      ["CAIMAN GRANDE",150000],
+      ["CAIMAN MEDIANO",60000],
+      ["CAIMAN PEQUENO",40000],
+      ["CONECTORES DE OJO PEQUE SC25-8",500000],
+      ["TERMINALES ELECTRICOS PEQ EN OJO",20000],
+      ["GRAPAS X50 PARA CABLE CUADRADO",220000],
+      ["GRAPAS X50 PARA CABLE REDONCO",200000]
+    ],
+    "Fusibles y Relay":[
+      ["FUSIBLE CARRO 15AMP",100000],
+      ["FUSIBLE CARRO 25 AMP",100000],
+      ["FUSIBLE CARRO 30 AMP",100000],
+      ["FUSIBLE SILICONA ROJO PEQ",110000],
+      ["FUSIBLE TERMICO",800000],
+      ["FUSIBLE USAL P/ROJO GDE",150000],
+      ["RELAY CAFE",700000],
+      ["RELAY DE AGUJA 1/4",66000],
+      ["RELAY DE AGUJA 1/5",660000],
+      ["RELAY DE AGUJA 1/6",660000],
+      ["RELAY NEGRO",990000],
+      ["RELAY W/CAP CONDENSADOR DE ARRANQUE 12UF/110VAC",17000]
+    ],
+    "Iluminación":[
+      ["BOMBILLO 3W",400000],
+      ["BOMBILLO 5W",450000],
+      ["BOMBILLO 12W",800000],
+      ["BOMBILLO 15W",12000],
+      ["BOMBILLO 24W",24000],
+      ["BOMBILLO LED 3042",11000],
+      ["PANEL LED 3W",700000],
+      ["PANEL LED 6W",900000],
+      ["PANEL LED 12W",15000],
+      ["PANEL LED 12W MEDIANA",16000],
+      ["PANEL LED 18W MEDIANA",18000],
+      ["PLAFON REDONDO PASTA",160000],
+      ["PLAFON REDONDO PORCELANA",520000]
+    ],
+    "Cajas y Accesorios Eléctricos":[
+      ["CAJA ELECTRICA CUADRADA",150000],
+      ["CAJA ELECTRICA OCTAGONAL",250000],
+      ["CAJA ELECTRICA 4X4",250000],
+      ["TAPA PLASTICA TOMA ELECTRICO 2X4",100000],
+      ["TAPA PLASTICA TOMA ELECTRICO 4X4",100000],
+      ["TRANSFORMADOR 220-24V 75VA",140000],
+      ["LIMPIADOR DE CONTACTOS ELECTRONICO",14500],
+      ["INSULATOR 35CT",24000],
+      ["ADAPTADOR REDONDO TOMA DE ENERGIA",300000]
+    ]
+  },
+  "🪛 FERRETERIA":{
+    "Tornillería y Fijación":[
+      ["CHAZO PLASTICO CORRUGADO 1/4",10000],
+      ["CHAZO PLASTICO CORRUGADO 3/16",10000],
+      ["CHAZO PLASTICO CORRUGADO 3/8",10000],
+      ["CHAZO PLASTICO CORRUGADO 5/16",10000],
+      ["CHAZO EXPANCION 1/4 1P",50000],
+      ["CHAZO EXPANSION 3/8X1.7/8",70000],
+      ["CHAZO EXPANSION 3/8X2.1/2",100000],
+      ["CHAZO EXPANSION 3/8X3",110000],
+      ["CHAZO METALICO 5/16 X1P",60000],
+      ["CHAZO METALICO 5/16 X2P",100000],
+      ["CHAZO 5/16 X 2 1/2",100000],
+      ["CHAZO PUNTILLA 1/4X1.1 1/4",25000],
+      ["CHAZOS 1/2 X 2\"",180000],
+      ["JUEGO CHAZO X4 1/4 X2P",270000],
+      ["TUERCA DE SEGURIDAD 5MM",10000],
+      ["TUERCA DE SEGURIDAD 6MM",10000],
+      ["TUERCA DE SEGURIDAD 8MM",20000],
+      ["TUERCA HEX IRIZADA 4MM",10000],
+      ["TUERCA HEX IRIZADA 5MM",10000],
+      ["TUERCA HEX IRIZADA 6MM",10000],
+      ["TUERCA HEX IRIZADA 8MM",20000],
+      ["TUERCA HEX IRIZADA 10MM",30000],
+      ["TUERCA HEXAGONAL ZINC 1/4-20",10000],
+      ["TUERCA HEXAGONAL ZINC 3/8-16",20000],
+      ["TUERCA HEXAGONAL ZINC 5/16-18",10000],
+      ["ARANDELA ZINC 1/4",10000],
+      ["ARANDELA ZINC 5/16",10000],
+      ["WASA ZINCADA 1/4",10000],
+      ["WASA ZINCADA 3/8",10000],
+      ["WASA ZINCADA 5/16",10000],
+      ["REMACHE CIEGO 1/8 X 3/8",15000],
+      ["REMACHE CIEGO 1/8 X 5/8",15000],
+      ["REMACHE CIEGO 3/16 X 3/4",15000],
+      ["REMACHE CIEGO 3/16 X 5/8",15000],
+      ["REMACHE CIEGO 5/32 X 5/8",15000],
+      ["CLAVO DE ACERO 3/4",5000],
+      ["PUNTILLA DE MADERA 1\" EN CAJA",700000],
+      ["PUNTILLA DE MADERA 1 1/2 EN CAJA",650000]
+    ],
+    "Bisagras y Cerraduras":[
+      ["BISAGRA HIERRO UDUKE",250000],
+      ["BISAGRA METALICA 3X3 ACERO INOX",22000],
+      ["BISAGRA MINI DORADA",50000],
+      ["CANDADO 50MM UDUKE",14000],
+      ["CANDADO PARA INTEMPERIE",25000],
+      ["CANDADO UDUKE 25MM",400000],
+      ["CANDADO UDUKE 38MM",600000],
+      ["CANDADO UDUKE 70MM",35000],
+      ["CADENA AMARRAR CANDADO",550000],
+      ["CADENA GALVANIZADA 5/32",450000],
+      ["CERRADURA DE SOBREPONER YALE BULONES",107000],
+      ["CERRADURA DE SOBREPONER YALE",145000],
+      ["CHAPA BOLA ALCOBA UDUKE",28300],
+      ["CHAPA BOLA ALCOBA UDUKE MANGO CROMADO",26000],
+      ["CHAPA BOLA BANO UDUKE MANGO CAFE",25200],
+      ["CHAPA DE MANIJA UDUKE CROMADO",47000],
+      ["PASADOR CUADRADO 1 1/2P X2UNI",750000],
+      ["PASADOR DORADA MEDIANA",500000],
+      ["KIT INSTALACION CERRADURA UDUKE",1000000]
+    ],
+    "Sogas y Amarre":[
+      ["SOGA 6MM",100000],
+      ["SOGA 10MM",120000],
+      ["CUERDA AMARRE UDUKE",550000],
+      ["CUERDA PARA CARGA RIATA UDUKE",30000],
+      ["PULPO CUERDA AMARRE UDUKE UNDS",770000],
+      ["STRECH GRANDE",41000],
+      ["STRECH PEQUEÑO",800000],
+      ["NYLON",400000]
+    ],
+    "Angulos y Refuerzos":[
+      ["ANGULO REFUERZO 1P",100000],
+      ["ANGULO REFUERZO 1 1/4P",100000],
+      ["ANGULO REFUERZO 1 1/2P",150000],
+      ["ANGULO REREFUERZO 2P",170000],
+      ["ANGULO REFUERZO 3P",200000],
+      ["BALINERA 6205",750000],
+      ["RODACHIN 1 1/2",450000],
+      ["RODACHIN RUEDA LOCA 2\"",550000],
+      ["RODACHIN RUEDA LOCA 2 1/2",800000],
+      ["RODACHIN RUEDA LOCA 3\"",14000],
+      ["RODACHIN RUEDA LOCA 4\"",16000],
+      ["RODACHIN RUEDA LOCA 4\" NEGRA",16000],
+      ["RODACHIN RUEDA LOCA 5\"",18000]
+    ]
+  },
+  "🚿 PLOMERIA":{
+    "Grifería":[
+      ["GRIFO 2 SALIDAS",660000],
+      ["GRIFO DE PASO UDUKE MANGO CIRCULAR 1/2P",31000],
+      ["GRIFO DE PASO UDUKE MANIJA CRUCETA 1/2P",29000],
+      ["GRIFO SATINADO CROMADO 1/2P UDUKE",13200],
+      ["GRIFO SATINADO DORADO 1/2P UDUKE",13200],
+      ["LLAVE LAVAPLATOS CUELLO GANSO MESON",26500],
+      ["LLAVE LAVAPLATOS CUELLO GANSO PARED",36000],
+      ["JUEGO GRIFERIA Y ACCESORIOS SANITARIO",16500]
+    ],
+    "Tubos y Uniones":[
+      ["UNION 1/2\" PEALPE X PEALPE",15500],
+      ["UNION ROSCA 1/2 GRANDE",300000],
+      ["UNION ROSCA 1/2 MEDIANO",250000],
+      ["UNION PARA MANGUERA 1/4",800000],
+      ["UNION T 1/2",800000],
+      ["UNION T 3/8",1000000],
+      ["TEE PEALPE SEMIORIGINAL",23000],
+      ["TAPON HEMBRA 1/2",200000],
+      ["TAPON MACHO 1/2",150000],
+      ["TAPON MACHO 3/8",150000],
+      ["ACOPLE 1/2 X 1/4",800000],
+      ["ACOPLE 1/4 X 1/4",400000],
+      ["ACOPLE 1/4 X 3/8",400000],
+      ["ACOPLE MANGUERA AGUA M3/8*3/4R",900000],
+      ["ACOPLE MANGUERA HEMBRA/MACHO",250000],
+      ["ACOPLE ROSCA 1/4 X 3/4 PARA MANGUERA",450000],
+      ["ACOPLE RAPIDO AEREO PEQUEÑO CABLE",18000],
+      ["NIPLE TUERCA CON ANILLO",300000],
+      ["FERRUR MANGUERA",200000],
+      ["MANGUERA HULE NEGRO",350000],
+      ["MANGUERA 5/16 CULVILINEA",800000],
+      ["EMPAQUE MANGUERA",35000],
+      ["REGULADOR DE GAS MANGUERA",17000]
+    ],
+    "Sifones y Rejillas":[
+      ["SIFON FLEXIBLE LAVAPLATO",600000],
+      ["SIFON FLEXIBLE LAVAPLATO CON CANASTILLA",15000],
+      ["REJILLA DRENAJE PISO 10X10",14000],
+      ["REJILLA LAVAPLATOS UDUKE 3.5P",400000],
+      ["REJILLA LAVAPLATOS UDUKE 4P",500000],
+      ["SOSCO ANTICUCARACHA METALICO SIFON 8*4",55000],
+      ["SOSCO ANTICUCARACHA METALICO SIFON 6",200000],
+      ["SOSCO REJILLA METALICA SIFON 6",200000],
+      ["SOSCO REJILLA METALICA SIFON",800000]
+    ]
+  },
+  "🛡️ SEGURIDAD":{
+    "Protección Personal":[
+      ["GAFA DE SEGURIDAD OSCURA",700000],
+      ["GAFA OSCURA T-NORTON ECONOMICA",300000],
+      ["TAPA BOCA INDUSTRIAL DOBLE",14300],
+      ["TAPA OIDOS",150000],
+      ["TAPA OIDOS GRANDE",15400],
+      ["DELANTALES SEGURIDAD",28000],
+      ["FILTRO ROSADO 2091 NIOSH",28000],
+      ["VIDRIO OSCURO CIRCULAR X2",350000],
+      ["VIDRIOS 10 NEGROS",150000],
+      ["VIDRIOS 11 NEGROS",150000],
+      ["VIDRIOS 12 NEGROS",150000],
+      ["VIDRIOS TRANSPARENTES",110000]
+    ]
+  },
+  "📦 VARIOS":{
+    "Accesorios de Cortinero":[
+      ["PUNTA DE CORTINERO GRANDE DORADA",100000],
+      ["PUNTA DE CORTINERO GRANDE NEGRA",100000],
+      ["PUNTA DE CORTINERO MEDIANO DORADA",80000],
+      ["PUNTA DE CORTINERO MEDIANO NEGRA",60000],
+      ["PUNTA DE CORTINERO PEQUE DORADA",70000],
+      ["PUNTA DE CORTINERO PEQUE NEGRA",50000],
+      ["SUJETADORES CORTINERO DORADO PEQUE",70000],
+      ["SUJETADORES CORTINERO DORADO MEDIANO",90000],
+      ["SUJETADORES CORTINERO EXT DORADO GRANDE",100000],
+      ["SUJETADORES CORTINERO EXT DORADO PEQ",70000],
+      ["SUJETADORES CORTINEROS DORADO MEDIANO",70000],
+      ["SUJETADORES CORTINEROS DORADO GRANDE",100000],
+      ["SUJETADORES CORTINEROS EXT GRANDE NEGRO",70000],
+      ["SUJETADORES DE CORTINERO EXT MEDIANO NEGRO",60000],
+      ["SUJETADORES DE CORTINERO EXT PEQUE NEGRO",50000],
+      ["SUJETADORES DE CORTINERO GRANDE NEGRO",60000],
+      ["SUJETADORES DE CORTINERO NEGRO MEDIANO",50000],
+      ["SUJETADORES DE CORTINERO NEGRO PEQ",50000]
+    ],
+    "Misceláneos":[
+      ["BRILLAMETAL CREMA",300000],
+      ["BENJAMIN CADENA BEIGE UD",400000],
+      ["CUERDA PARA CARGA RIATA UDUKE",30000],
+      ["PILA PANASONIC TIPO D",400000],
+      ["TIMBRE INALAMBRICO UDUKE",28000],
+      ["TIZA PARA METAL PLANA",70000],
+      ["SEPARADOR DE BALDOSA 1.5MM",150000],
+      ["SEPARADOR DE BALDOSA 1MM",150000],
+      ["SEPARADOR DE BALDOSA 3MM",250000],
+      ["CRUCETA SOLIDA",30000],
+      ["LIMA REDONDA 6\" UDUKE",700000],
+      ["LIMA TRIANGULAR",550000],
+      ["PORTABIRLO NEGRO",40000],
+      ["PORTABIRLO ROJO",40000],
+      ["MANIJA TANQUE MANGO METALICO",450000],
+      ["MANIJA TANQUE MANGO TRANSPARENTE",250000],
+      ["MANIJA LAMINA DOBLADA NEGRA",1000000],
+      ["ACOPLE LICUADORA OSTER ECONOMICO",200000],
+      ["ACOPLE UNAS BLANCAS WH",11000],
+      ["ACOPLE WHIRPOOL",12000],
+      ["JUEGO ACOPLE RAPIDO PINTAR X5PCS",12000],
+      ["ASPIRA ELITE 1GL",250000]
+    ]
+  }
+};
+
+function fmt(n){return"$"+n.toLocaleString("es-CO");}
+
+function build(){
+  const cat=document.getElementById("catalog");
+  cat.innerHTML="";
+  for(const[catName,subs] of Object.entries(DATA)){
+    let total=0;
+    for(const items of Object.values(subs)) total+=items.length;
+    const cg=document.createElement("div");
+    cg.className="cat-group";
+    let subsHTML="";
+    for(const[subName,items] of Object.entries(subs)){
+      const prods=items.map(i=>`
+        <div class="prod-item">
+          <span class="prod-name">${i[0]}</span>
+          <span class="price">${fmt(i[1])}</span>
+        </div>`).join("");
+      subsHTML+=`
+        <div class="sub-group">
+          <div class="sub-header" onclick="toggleSub(this)">
+            <span>▸ ${subName}</span>
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span class="sub-count">${items.length}</span>
+              <span class="arrow">▸</span>
+            </span>
+          </div>
+          <div class="prod-list">${prods}</div>
+        </div>`;
+    }
+    cg.innerHTML=`
+      <div class="cat-header" onclick="toggleCat(this)">
+        <span>${catName}</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span class="cat-count">${total}</span>
+          <span class="arrow">▸</span>
+        </span>
+      </div>
+      <div class="sub-list">${subsHTML}</div>`;
+    cat.appendChild(cg);
+  }
+}
+
+function toggleCat(el){
+  el.classList.toggle("open");
+  const sl=el.nextElementSibling;
+  sl.style.display=sl.style.display==="block"?"none":"block";
+}
+
+function toggleSub(el){
+  el.classList.toggle("open");
+  const pl=el.nextElementSibling;
+  pl.style.display=pl.style.display==="block"?"none":"block";
+}
+
+function runFilter(){
+  const q=document.getElementById("searchBar").value.toLowerCase().trim();
+  if(q===""){
+    document.querySelectorAll(".prod-list").forEach(p=>p.style.display="none");
+    document.querySelectorAll(".sub-list").forEach(s=>s.style.display="none");
+    document.querySelectorAll(".cat-header").forEach(h=>h.classList.remove("open"));
+    document.querySelectorAll(".sub-header").forEach(h=>h.classList.remove("open"));
+    document.querySelectorAll(".prod-item").forEach(p=>p.style.display="flex");
+    return;
+  }
+  document.querySelectorAll(".prod-item").forEach(p=>{
+    const match=p.innerText.toLowerCase().includes(q);
+    p.style.display=match?"flex":"none";
+  });
+  document.querySelectorAll(".sub-group").forEach(sg=>{
+    const visible=[...sg.querySelectorAll(".prod-item")].some(p=>p.style.display==="flex");
+    sg.querySelector(".prod-list").style.display=visible?"block":"none";
+    sg.querySelector(".sub-header").classList.toggle("open",visible);
+  });
+  document.querySelectorAll(".cat-group").forEach(cg=>{
+    const visible=[...cg.querySelectorAll(".prod-item")].some(p=>p.style.display==="flex");
+    cg.querySelector(".sub-list").style.display=visible?"block":"none";
+    cg.querySelector(".cat-header").classList.toggle("open",visible);
+  });
+}
+
+build();
+</script>
+</body>
+</html>
+
