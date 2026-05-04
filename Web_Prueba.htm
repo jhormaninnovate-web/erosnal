@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INDUMAG | Oficial</title>
+
+    <style>
+        /* --- ESTO QUE VES AQUÍ ABAJO ES EL CSS --- */
+        :root {
+            --verde: #519a2e;
+            --bezier: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #fff; overflow-x: hidden; }
+
+        /* HEADER */
+        .header { padding: 10px 15px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+        .header-content { display: flex; flex-direction: row; align-items: center; justify-content: space-between; max-width: 1400px; margin: 0 auto; gap: 20px; min-height: 70px; }
+        
+        .logo-main { height: 80px; width: auto; flex-shrink: 0; transition: transform 0.4s var(--bezier); cursor: pointer; }
+        .logo-main:hover { transform: scale(1.05); }
+
+        .search-box { border: 1px solid #ddd; border-radius: 12px; padding: 8px 15px; display: flex; align-items: center; background: #f9f9f9; gap: 10px; flex-grow: 1; max-width: 500px; }
+        .search-box input { border: none; outline: none; width: 100%; background: transparent; font-size: 16px; }
+        .login-btn { font-size: 12px; font-weight: 700; color: #444; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; cursor: pointer; }
+
+        /* SPLIT DINÁMICO */
+        .split-container { display: flex; flex-direction: column; height: 70dvh; background: #000; position: relative; z-index: 1; }
+        .section { position: relative; flex: 1; display: flex; align-items: center; padding: 0 40px; cursor: pointer; overflow: hidden; transition: flex 0.8s var(--bezier); }
+
+        @media (min-width: 900px) {
+            .split-container { flex-direction: row; }
+            .split-container:hover .section { flex: 0.95; }
+            .section:hover { flex: 1.3 !important; }
+            h2 { font-size: 40px; }
+        }
+
+        .bg-img { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform 1.5s var(--bezier); z-index: 1; }
+        .section:hover .bg-img { transform: scale(1.05); }
+        .section::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 100%); z-index: 2; }
+        .content { position: relative; color: white; z-index: 3; pointer-events: none; }
+        h2 { font-size: 28px; font-weight: 800; line-height: 1.1; text-transform: uppercase; }
+        .line { width: 40px; height: 4px; background: var(--verde); margin: 15px 0; }
+        .btn-action { background: var(--verde); color: white; padding: 12px 25px; border-radius: 6px; font-size: 13px; font-weight: bold; display: inline-block; opacity: 0; transform: translateY(15px); transition: all 0.5s var(--bezier); }
+        .section:hover .btn-action { opacity: 1; transform: translateY(0); }
+
+        /* --- LOGOS EN LOOP INFINITO --- */
+        .brand-footer { padding: 40px 0; text-align: center; overflow: hidden; background: #fff; }
+        .brand-footer h2 { font-size: 14px; margin-bottom: 25px; color: #999; letter-spacing: 2px; }
+        
+        .track { 
+            display: flex; 
+            width: max-content; /* Permite que el contenido sea tan largo como los logos */
+            animation: scrollLogos 25s linear infinite; /* Animación continua */
+            align-items: center;
+        }
+
+        .logo-box { width: 150px; margin: 0 40px; flex-shrink: 0; }
+        .logo-box img { width: 100%; filter: grayscale(1); opacity: 0.4; transition: 0.3s; }
+        .logo-box:hover img { filter: grayscale(0); opacity: 1; }
+
+        @keyframes scrollLogos {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); } /* Se detiene a la mitad porque el resto es copia */
+        }
+
+        /* Pausa el carrusel al pasar el mouse */
+        .track:hover { animation-play-state: paused; }
+
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-content">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3lHMukjCrCLrU_YlVaEyp_6mOCRm556gKSQ&s" class="logo-main">
+        <div class="search-box">
+            <input type="text" placeholder="Buscar productos o servicios...">
+        </div>
+        <div class="login-btn">Iniciar sesión</div>
+    </div>
+</header>
+
+<div class="split-container">
+    <div class="section">
+        <div class="bg-img" style="background-image:url('https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1200&q=80')"></div>
+        <div class="content">
+            <h2>SERVICIO<br>TÉCNICO</h2>
+            <div class="line"></div>
+            <div class="btn-action">SOLICITAR REPARACIÓN</div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="bg-img" style="background-image:url('https://millerweldslatam.com/wp-content/uploads/2025/09/soldadora-syncrowave-212-coolmate-2-miller-welds-400x400.jpg')"></div>
+        <div class="content">
+            <h2>EQUIPOS Y<br>REPUESTOS</h2>
+            <div class="line"></div>
+            <div class="btn-action">VER CATÁLOGO</div>
+        </div>
+    </div>
+</div>
+
+<!-- Copia desde aquí hacia abajo -->
+<div class="brand-footer">
+    <h2>DISTRIBUIDOR AUTORIZADO</h2>
+    <div class="track">
+        <!-- GRUPO 1: Originales -->
+        <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Lincoln_Electric_logo.svg"></div>
+        <div class="logo-box"><img src="https://millerweldseurope.com/wp-content/uploads/2021/09/Miller-Logo-C-2.png"></div>
+        <div class="logo-box"><img src="https://cdn.worldvectorlogo.com/logos/esab.svg"></div>
+        <div class="logo-box"><img src="https://image.jimcdn.com/app/cms/image/transf/none/path/s98d3e305ba298bb3/image/i64b6b69472d9ff76/version/1587132801/image.jpg"></div>
+        <div class="logo-box"><img src="https://mundodotaciones.com/wp-content/uploads/2024/05/sweiss.png"></div>
+        
+        <!-- GRUPO 2: Copia para rellenar el ancho -->
+        <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Lincoln_Electric_logo.svg"></div>
+        <div class="logo-box"><img src="https://millerweldseurope.com/wp-content/uploads/2021/09/Miller-Logo-C-2.png"></div>
+        <div class="logo-box"><img src="https://cdn.worldvectorlogo.com/logos/esab.svg"></div>
+        <div class="logo-box"><img src="https://image.jimcdn.com/app/cms/image/transf/none/path/s98d3e305ba298bb3/image/i64b6b69472d9ff76/version/1587132801/image.jpg"></div>
+        <div class="logo-box"><img src="https://mundodotaciones.com/wp-content/uploads/2024/05/sweiss.png"></div>
+
+        <!-- GRUPO 3: Copia de seguridad para pantallas 4K -->
+        <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Lincoln_Electric_logo.svg"></div>
+        <div class="logo-box"><img src="https://millerweldseurope.com/wp-content/uploads/2021/09/Miller-Logo-C-2.png"></div>
+        <div class="logo-box"><img src="https://cdn.worldvectorlogo.com/logos/esab.svg"></div>
+        <div class="logo-box"><img src="https://image.jimcdn.com/app/cms/image/transf/none/path/s98d3e305ba298bb3/image/i64b6b69472d9ff76/version/1587132801/image.jpg"></div>
+        <div class="logo-box"><img src="https://mundodotaciones.com/wp-content/uploads/2024/05/sweiss.png"></div>
+    </div>
+</div>
+
+<style>
+    .brand-footer { 
+        padding: 40px 0; 
+        text-align: center; 
+        overflow: hidden; 
+        background: #fff; 
+        width: 100%;
+    }
+
+    .track { 
+        display: flex; 
+        width: max-content; 
+        /* He subido el tiempo a 40s para que no vaya muy rápido al haber más logos */
+        animation: scrollLogos 40s linear infinite; 
+        align-items: center;
+    }
+
+    .logo-box { 
+        /* Ancho fijo para que el cálculo del loop sea exacto */
+        width: 180px; 
+        margin: 0 45px; 
+        flex-shrink: 0; 
+    }
+
+    .logo-box img { 
+        width: 100%; 
+        filter: grayscale(1); 
+        opacity: 0.4; 
+        transition: 0.3s; 
+    }
+
+    @keyframes scrollLogos {
+        0% { transform: translateX(0); }
+        100% { 
+            /* El truco: movemos solo el ancho de UN grupo de logos (1/3 del total) */
+            transform: translateX(calc(-100% / 3)); 
+        }
+    }
+
+    .track:hover { animation-play-state: paused; }
+</style>
