@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>INDUMAG | Oficial</title>
-
     <style>
-        /* --- ESTO QUE VES AQUÍ ABAJO ES EL CSS --- */
         :root {
             --verde: #519a2e;
             --bezier: cubic-bezier(0.25, 1, 0.5, 1);
@@ -17,18 +15,54 @@
 
         /* HEADER */
         .header { padding: 10px 15px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
-        .header-content { display: flex; flex-direction: row; align-items: center; justify-content: space-between; max-width: 1400px; margin: 0 auto; gap: 20px; min-height: 70px; }
-        
-        .logo-main { height: 80px; width: auto; flex-shrink: 0; transition: transform 0.4s var(--bezier); cursor: pointer; }
-        .logo-main:hover { transform: scale(1.05); }
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 15px;
+            min-height: 70px;
+        }
 
-        .search-box { border: 1px solid #ddd; border-radius: 12px; padding: 8px 15px; display: flex; align-items: center; background: #f9f9f9; gap: 10px; flex-grow: 1; max-width: 500px; }
-        .search-box input { border: none; outline: none; width: 100%; background: transparent; font-size: 16px; }
-        .login-btn { font-size: 12px; font-weight: 700; color: #444; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; cursor: pointer; }
+        .logo-main { height: 85px; width: auto; flex-shrink: 0; transition: 0.3s; }
+
+        /* BUSCADOR */
+        .search-box {
+            border: 1px solid #ddd; 
+            border-radius: 12px; 
+            padding: 8px 15px; 
+            display: flex; 
+            align-items: center; 
+            background: #f9f9f9; 
+            gap: 10px; 
+            flex-grow: 1; 
+            max-width: 500px; 
+            min-width: 0;
+        }
+        .search-box input { width: 100%; border: none; background: transparent; outline: none; font-size: 16px; }
+
+        /* BOTÓN MODO IA EN BUSCADOR */
+        .ia-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 800;
+            color: #555;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+        .ia-toggle:hover { background: #e8f5e9; border-color: var(--verde); color: var(--verde); }
 
         /* SPLIT DINÁMICO */
         .split-container { display: flex; flex-direction: column; height: 70dvh; background: #000; position: relative; z-index: 1; }
-        .section { position: relative; flex: 1; display: flex; align-items: center; padding: 0 40px; cursor: pointer; overflow: hidden; transition: flex 0.8s var(--bezier); }
+        .section { position: relative; flex: 1; display: flex; align-items: center; padding: 0 40px; cursor: pointer; overflow: hidden; transition: flex 0.8s var(--bezier) !important; }
 
         @media (min-width: 900px) {
             .split-container { flex-direction: row; }
@@ -43,43 +77,67 @@
         .content { position: relative; color: white; z-index: 3; pointer-events: none; }
         h2 { font-size: 28px; font-weight: 800; line-height: 1.1; text-transform: uppercase; }
         .line { width: 40px; height: 4px; background: var(--verde); margin: 15px 0; }
-        .btn-action { background: var(--verde); color: white; padding: 12px 25px; border-radius: 6px; font-size: 13px; font-weight: bold; display: inline-block; opacity: 0; transform: translateY(15px); transition: all 0.5s var(--bezier); }
-        .section:hover .btn-action { opacity: 1; transform: translateY(0); }
+        .btn-action { background: var(--verde); color: white; padding: 12px 25px; border-radius: 6px; font-size: 13px; font-weight: bold; display: inline-block; transition: all 0.5s var(--bezier); }
 
-        /* --- LOGOS EN LOOP INFINITO --- */
-        .brand-footer { padding: 40px 0; text-align: center; overflow: hidden; background: #fff; }
-        .brand-footer h2 { font-size: 14px; margin-bottom: 25px; color: #999; letter-spacing: 2px; }
-        
-        .track { 
-            display: flex; 
-            width: max-content; /* Permite que el contenido sea tan largo como los logos */
-            animation: scrollLogos 25s linear infinite; /* Animación continua */
-            align-items: center;
-        }
+        /* CARRUSEL DE MARCAS */
+        .brand-footer { padding: 40px 0; text-align: center; overflow: hidden; background: #fff; width: 100%; }
+        .footer-title { font-size: 22px !important; margin-bottom: 30px; color: #444; letter-spacing: 3px; font-weight: 800; text-transform: uppercase; }
+        .footer-title span { color: var(--verde); }
 
-        .logo-box { width: 150px; margin: 0 40px; flex-shrink: 0; }
+        .track { display: flex; width: max-content; animation: scrollLogos 40s linear infinite; align-items: center; }
+        .logo-box { width: 180px; margin: 0 45px; flex-shrink: 0; }
         .logo-box img { width: 100%; filter: grayscale(1); opacity: 0.4; transition: 0.3s; }
         .logo-box:hover img { filter: grayscale(0); opacity: 1; }
 
         @keyframes scrollLogos {
             0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); } /* Se detiene a la mitad porque el resto es copia */
+            100% { transform: translateX(calc(-100% / 2)); } 
         }
 
-        /* Pausa el carrusel al pasar el mouse */
-        .track:hover { animation-play-state: paused; }
-
+        /* --- RESPONSIVE MÓVIL --- */
+        @media (max-width: 768px) {
+            .logo-main { height: 50px !important; } /* LOGO ARREGLADO */
+            .header-content { padding: 5px 10px; min-height: 60px; }
+            .ia-toggle { display: none; } /* Oculto en buscador para usar el flotante */
+            
+            .footer-title { font-size: 16px !important; letter-spacing: 1px; }
+            .logo-box { width: 100px; margin: 0 20px; } /* CARRUSEL ARREGLADO */
+            
+            #iaFloatingBtn { display: flex !important; }
+            
+            #chatIA {
+                width: 100vw !important;
+                height: 100dvh !important;
+                bottom: 0 !important;
+                right: 0 !important;
+                border-radius: 0 !important;
+            }
+        }
     </style>
 </head>
 <body>
 
 <header class="header">
     <div class="header-content">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3lHMukjCrCLrU_YlVaEyp_6mOCRm556gKSQ&s" class="logo-main">
-        <div class="search-box">
-            <input type="text" placeholder="Buscar productos o servicios...">
+        <img src="https://www.indumag.co/wp-content/uploads/2026/04/Logo_INDUMAG_nuevo.png" class="logo-main" alt="Indumag Logo">
+        
+        <div class="search-box" id="searchBox">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Buscar productos...">
+            <button class="ia-toggle" onclick="toggleIA()">
+                <span>MODO IA</span>
+            </button>
         </div>
-        <div class="login-btn">Iniciar sesión</div>
+
+        <div class="login-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </div>
     </div>
 </header>
 
@@ -102,25 +160,15 @@
     </div>
 </div>
 
-<!-- Copia desde aquí hacia abajo -->
 <div class="brand-footer">
-    <h2>DISTRIBUIDOR AUTORIZADO</h2>
+    <h2 class="footer-title">DISTRIBUIDOR <span>AUTORIZADO</span></h2>
     <div class="track">
-        <!-- GRUPO 1: Originales -->
         <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Lincoln_Electric_logo.svg"></div>
         <div class="logo-box"><img src="https://millerweldseurope.com/wp-content/uploads/2021/09/Miller-Logo-C-2.png"></div>
         <div class="logo-box"><img src="https://cdn.worldvectorlogo.com/logos/esab.svg"></div>
         <div class="logo-box"><img src="https://image.jimcdn.com/app/cms/image/transf/none/path/s98d3e305ba298bb3/image/i64b6b69472d9ff76/version/1587132801/image.jpg"></div>
         <div class="logo-box"><img src="https://mundodotaciones.com/wp-content/uploads/2024/05/sweiss.png"></div>
-        
-        <!-- GRUPO 2: Copia para rellenar el ancho -->
-        <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Lincoln_Electric_logo.svg"></div>
-        <div class="logo-box"><img src="https://millerweldseurope.com/wp-content/uploads/2021/09/Miller-Logo-C-2.png"></div>
-        <div class="logo-box"><img src="https://cdn.worldvectorlogo.com/logos/esab.svg"></div>
-        <div class="logo-box"><img src="https://image.jimcdn.com/app/cms/image/transf/none/path/s98d3e305ba298bb3/image/i64b6b69472d9ff76/version/1587132801/image.jpg"></div>
-        <div class="logo-box"><img src="https://mundodotaciones.com/wp-content/uploads/2024/05/sweiss.png"></div>
-
-        <!-- GRUPO 3: Copia de seguridad para pantallas 4K -->
+        <!-- Copias -->
         <div class="logo-box"><img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Lincoln_Electric_logo.svg"></div>
         <div class="logo-box"><img src="https://millerweldseurope.com/wp-content/uploads/2021/09/Miller-Logo-C-2.png"></div>
         <div class="logo-box"><img src="https://cdn.worldvectorlogo.com/logos/esab.svg"></div>
@@ -129,44 +177,42 @@
     </div>
 </div>
 
-<style>
-    .brand-footer { 
-        padding: 40px 0; 
-        text-align: center; 
-        overflow: hidden; 
-        background: #fff; 
-        width: 100%;
-    }
+<!-- CHAT IA -->
+<div id="chatIA" style="position: fixed; bottom: 20px; right: 20px; width: 350px; height: 500px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; flex-direction: column; overflow: hidden; z-index: 10000;">
+    <div style="background: #1a1a1a; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: bold;">✨ Asistente IA INDUMAG</span>
+        <span onclick="toggleIA()" style="cursor: pointer; font-size: 24px;">✕</span>
+    </div>
+    <div style="flex: 1; padding: 20px; background: #f9f9f9; overflow-y: auto;">
+        <div style="background: white; padding: 15px; border-radius: 12px; border-left: 4px solid var(--verde); font-size: 14px;">
+            Hola, soy tu asesor técnico experto. ¿Qué necesitas soldar hoy?
+        </div>
+    </div>
+    <div style="padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px;">
+        <input type="text" placeholder="Escribe tu duda..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd; outline: none;">
+        <button style="background: var(--verde); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;">➔</button>
+    </div>
+</div>
 
-    .track { 
-        display: flex; 
-        width: max-content; 
-        /* He subido el tiempo a 40s para que no vaya muy rápido al haber más logos */
-        animation: scrollLogos 40s linear infinite; 
-        align-items: center;
-    }
+<!-- BOTÓN FLOTANTE (MÓVIL) -->
+<div id="iaFloatingBtn" onclick="toggleIA()" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--verde); color: white; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 9999;">
+    IA
+</div>
 
-    .logo-box { 
-        /* Ancho fijo para que el cálculo del loop sea exacto */
-        width: 180px; 
-        margin: 0 45px; 
-        flex-shrink: 0; 
-    }
-
-    .logo-box img { 
-        width: 100%; 
-        filter: grayscale(1); 
-        opacity: 0.4; 
-        transition: 0.3s; 
-    }
-
-    @keyframes scrollLogos {
-        0% { transform: translateX(0); }
-        100% { 
-            /* El truco: movemos solo el ancho de UN grupo de logos (1/3 del total) */
-            transform: translateX(calc(-100% / 3)); 
+<script>
+function toggleIA() {
+    const chat = document.getElementById("chatIA");
+    if (chat.style.display === "flex") {
+        chat.style.display = "none";
+        document.body.style.overflow = "auto";
+    } else {
+        chat.style.display = "flex";
+        if (window.innerWidth <= 768) {
+            document.body.style.overflow = "hidden";
         }
     }
+}
+</script>
 
-    .track:hover { animation-play-state: paused; }
-</style>
+</body>
+</html>
