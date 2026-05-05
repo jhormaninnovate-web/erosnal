@@ -204,22 +204,21 @@ const btn = document.getElementById("iaFloatingBtn");
 let isDragging = false;
 let startX, startY;
 
-// Evento cuando se empieza a tocar el botón
 btn.addEventListener("touchstart", (e) => {
-    isDragging = false; // Reset por si es solo un click
+    isDragging = false;
     startX = e.touches[0].clientX - btn.offsetLeft;
     startY = e.touches[0].clientY - btn.offsetTop;
+    btn.style.transition = "none"; // Quitamos transición mientras arrastramos
 });
 
-// Evento mientras se arrastra el dedo
 btn.addEventListener("touchmove", (e) => {
-    isDragging = true; // Si se movió, ya no es un simple click
-    e.preventDefault(); // Evita que la pantalla se mueva mientras arrastras el botón
+    isDragging = true;
+    e.preventDefault();
 
     let x = e.touches[0].clientX - startX;
     let y = e.touches[0].clientY - startY;
 
-    // Límites para que no se salga de la pantalla
+    // Límites básicos para que no desaparezca
     const maxX = window.innerWidth - btn.offsetWidth;
     const maxY = window.innerHeight - btn.offsetHeight;
 
@@ -228,15 +227,25 @@ btn.addEventListener("touchmove", (e) => {
 
     btn.style.left = x + "px";
     btn.style.top = y + "px";
-    btn.style.right = "auto";
-    btn.style.bottom = "auto";
 });
 
-// Evento al levantar el dedo
 btn.addEventListener("touchend", (e) => {
-    // Si NO hubo arrastre, abrimos el chat (fue un click normal)
     if (!isDragging) {
         toggleIA();
+    } else {
+        // EFECTO IMÁN: Al soltar, decidimos a qué lado enviarlo
+        btn.style.transition = "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)"; // Animación fluida con rebote
+        
+        const screenWidth = window.innerWidth;
+        const btnCenter = btn.offsetLeft + (btn.offsetWidth / 2);
+
+        if (btnCenter < screenWidth / 2) {
+            // Se pega a la izquierda (dejando un margen de 10px)
+            btn.style.left = "10px";
+        } else {
+            // Se pega a la derecha
+            btn.style.left = (screenWidth - btn.offsetWidth - 10) + "px";
+        }
     }
     isDragging = false;
 });
@@ -248,7 +257,6 @@ function toggleIA() {
         document.body.style.overflow = "auto";
     } else {
         chat.style.display = "flex";
-        // En móvil bloqueamos el scroll de fondo para que no moleste al chatear
         if (window.innerWidth <= 768) {
             document.body.style.overflow = "hidden";
         }
