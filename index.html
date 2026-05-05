@@ -204,11 +204,17 @@ const btn = document.getElementById("iaFloatingBtn");
 let isDragging = false;
 let startX, startY;
 
+// Forzar que el botón use coordenadas 'top/left' desde el inicio
+btn.style.left = btn.offsetLeft + "px";
+btn.style.top = btn.offsetTop + "px";
+btn.style.right = "auto";
+btn.style.bottom = "auto";
+
 btn.addEventListener("touchstart", (e) => {
     isDragging = false;
     startX = e.touches[0].clientX - btn.offsetLeft;
     startY = e.touches[0].clientY - btn.offsetTop;
-    btn.style.transition = "none"; // Quitamos transición mientras arrastramos
+    btn.style.transition = "none"; 
 });
 
 btn.addEventListener("touchmove", (e) => {
@@ -218,7 +224,6 @@ btn.addEventListener("touchmove", (e) => {
     let x = e.touches[0].clientX - startX;
     let y = e.touches[0].clientY - startY;
 
-    // Límites básicos para que no desaparezca
     const maxX = window.innerWidth - btn.offsetWidth;
     const maxY = window.innerHeight - btn.offsetHeight;
 
@@ -233,17 +238,15 @@ btn.addEventListener("touchend", (e) => {
     if (!isDragging) {
         toggleIA();
     } else {
-        // EFECTO IMÁN: Al soltar, decidimos a qué lado enviarlo
-        btn.style.transition = "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)"; // Animación fluida con rebote
+        // EFECTO IMÁN
+        btn.style.transition = "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
         
         const screenWidth = window.innerWidth;
         const btnCenter = btn.offsetLeft + (btn.offsetWidth / 2);
 
         if (btnCenter < screenWidth / 2) {
-            // Se pega a la izquierda (dejando un margen de 10px)
             btn.style.left = "10px";
         } else {
-            // Se pega a la derecha
             btn.style.left = (screenWidth - btn.offsetWidth - 10) + "px";
         }
     }
